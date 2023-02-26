@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"os"
-	"strings"
 )
 
 func main() {
@@ -20,17 +20,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	buff := make([]byte, 1024)
-	n, err := conn.Read(buff)
-	if err != nil {
-		fmt.Println("Error reading from connection: ", err.Error())
-		os.Exit(1)
-	}
+	buff := make([]byte, 7)
+	for {
+		_, err := conn.Read(buff)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			fmt.Println("Error reading from connection: ", err.Error())
+			os.Exit(1)
+		}
 
-	var res = strings.Split(string(buff[:n]), "\r\n")
-
-	for i := 1; i < len(res); i++ {
-		_, err = conn.Write([]byte("$4\r\nPONG\r\n"))
+		_, err = conn.Write([]byte("+PONG\r\n"))
 		if err != nil {
 			fmt.Println("Error writing to connection: ", err.Error())
 		}
