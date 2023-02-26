@@ -30,13 +30,5 @@ func main() {
 	if err != nil {
 		fmt.Println("Error writing to connection: ", err.Error())
 	}
-	_, err = conn.Write([]byte("+PONG\r\n"))
-	if err != nil {
-		fmt.Println("Error writing to connection: ", err.Error())
-	}
-	_, err = conn.Write([]byte("+PONG\r\n"))
-	if err != nil {
-		fmt.Println("Error writing to connection: ", err.Error())
-	}
 
 }
