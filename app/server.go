@@ -30,7 +30,7 @@ func main() {
 	var res = strings.Split(string(buff[:n]), "\r\n")
 
 	for i := 1; i < len(res); i++ {
-		_, err = conn.Write([]byte("+PONG\r\n"))
+		_, err = conn.Write([]byte("$4\r\nPONG\r\n"))
 		if err != nil {
 			fmt.Println("Error writing to connection: ", err.Error())
 		}
