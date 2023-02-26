@@ -20,7 +20,6 @@ func main() {
 	}
 
 	buff := make([]byte, 0, 4096)
-
 	_, err = conn.Read(buff)
 	if err != nil {
 		fmt.Println("Error reading from connection: ", err.Error())
@@ -31,4 +30,13 @@ func main() {
 	if err != nil {
 		fmt.Println("Error writing to connection: ", err.Error())
 	}
+	_, err = conn.Write([]byte("+PONG\r\n"))
+	if err != nil {
+		fmt.Println("Error writing to connection: ", err.Error())
+	}
+	_, err = conn.Write([]byte("+PONG\r\n"))
+	if err != nil {
+		fmt.Println("Error writing to connection: ", err.Error())
+	}
+
 }
