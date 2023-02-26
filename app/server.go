@@ -28,7 +28,7 @@ func main() {
 	}
 
 	var res = strings.Split(string(buff[:n]), "\r\n")
-	fmt.Println(res)
+
 	for i := 1; i < len(res); i++ {
 		_, err = conn.Write([]byte("+PONG\r\n"))
 		if err != nil {
