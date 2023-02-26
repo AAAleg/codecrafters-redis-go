@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -19,16 +20,20 @@ func main() {
 		os.Exit(1)
 	}
 
-	buff := make([]byte, 0, 4096)
-	_, err = conn.Read(buff)
+	buff := make([]byte, 1024)
+	n, err := conn.Read(buff)
 	if err != nil {
 		fmt.Println("Error reading from connection: ", err.Error())
 		os.Exit(1)
 	}
 
-	_, err = conn.Write([]byte("+PONG\r\n"))
-	if err != nil {
-		fmt.Println("Error writing to connection: ", err.Error())
+	var res = strings.Split(string(buff[:n]), "\r\n")
+	fmt.Println(res)
+	for i := 1; i < len(res); i++ {
+		_, err = conn.Write([]byte("+PONG\r\n"))
+		if err != nil {
+			fmt.Println("Error writing to connection: ", err.Error())
+		}
 	}
 
 }
