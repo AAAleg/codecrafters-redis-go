@@ -5,6 +5,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -21,21 +22,33 @@ func main() {
 			os.Exit(1)
 		}
 
-		go func(c net.Conn) {
-			for {
-				buff := make([]byte, 1024)
-				_, err := conn.Read(buff)
-				if err == io.EOF {
-					break
-				}
-				if err != nil {
-					fmt.Println("Error reading from connection: ", err.Error())
-					os.Exit(1)
-
-				}
-				conn.Write([]byte("+PONG\r\n"))
-			}
-		}(conn)
+		go HandleConn(conn)
 	}
+}
 
+func HandleConn(conn net.Conn) {
+	defer conn.Close()
+	for {
+		buff := make([]byte, 1024)
+		n, err := conn.Read(buff)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			fmt.Println("Error reading from connection: ", err.Error())
+			os.Exit(1)
+
+		}
+
+		req := strings.Split(string(buff[:n]), "\r\n")
+		command := req[2]
+		if command == "echo" || command == "ECHO" {
+			resp := fmt.Sprintf("+%s\r\n", req[4])
+			conn.Write([]byte(resp))
+		}
+		if command == "ping" || command == "PING" {
+			conn.Write([]byte("+PONG\r\n"))
+		}
+
+	}
 }
