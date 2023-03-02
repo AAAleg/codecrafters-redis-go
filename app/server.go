@@ -7,6 +7,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"strconv"
 )
 
 func main() {
@@ -51,8 +52,18 @@ func HandleConn(conn net.Conn, storage *InMemoryStorage) {
 		case "echo":
 			conn.Write([]byte(fmt.Sprintf("$%d\r\n%s\r\n", len(args[0].String()), args[0].String())))
 		case "set":
-			storage.Set(args[0].String(), args[1].String())
-			conn.Write([]byte("+OK\r\n"))
+			if len(args) > 2 && args[2].String() == "px" {
+				expiration, err := strconv.Atoi(args[3].String())
+				if err != nil {
+					conn.Write([]byte("-ERR\r\n"))
+				} else {
+					storage.Set(args[0].String(), args[1].String(), int64(expiration))
+					conn.Write([]byte("+OK\r\n"))
+				}
+			} else {
+				storage.Set(args[0].String(), args[1].String(), int64(0))
+				conn.Write([]byte("+OK\r\n"))
+			}
 		case "get":
 			value, ok := storage.Get(args[0].String())
 			if ok {
@@ -60,7 +71,6 @@ func HandleConn(conn net.Conn, storage *InMemoryStorage) {
 			} else {
 				conn.Write([]byte("$-1\r\n"))
 			}
-
 		default:
 			conn.Write([]byte("-ERR unknown command '" + command + "'\r\n"))
 		}
